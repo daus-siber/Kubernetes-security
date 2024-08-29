@@ -1,0 +1,29 @@
+name: Automatic Kubernetes Config Backup
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Runs every day at midnight UTC
+  push:
+    branches:
+      - main  # Adjust based on your default branch name
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Git
+      run: |
+        git config --global user.name "daus-siber"
+        git config --global user.email "daus@sibernetik.co.id"
+
+    - name: Commit and Push Changes
+      run: |
+        git add .
+        git commit -m "Automated backup on $(date)"
+        git push origin main
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
