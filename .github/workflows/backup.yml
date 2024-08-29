@@ -20,7 +20,14 @@ jobs:
         git config --global user.name "daus-siber"
         git config --global user.email "daus@sibernetik.co.id"
 
+    - name: Check for Changes
+      id: changes
+      run: |
+        git fetch origin
+        git diff --quiet || echo "Changes detected"
+
     - name: Commit and Push Changes
+      if: steps.changes.outputs.changes != ''
       run: |
         git add .
         git commit -m "Automated backup on $(date)"
