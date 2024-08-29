@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elastalert-rules
+  namespace: opensearch
+data:
+ suricata.yaml: |
+    name: Suricata Alerts
+    type: frequency
+    index: ssa-*
+    num_events: 1
+    timeframe:
+      seconds: 5
+    run_every:
+      minutes: 1
+    filter:
+      - query:
+          query_string:
+            query: "alert.severity: 1"
+    realert:
+      minutes: 0
+         
+    alert:
+      - "hivealerter"
+    alert_text_args: [ alert.category, alert.signature ]
+    alert_text_type: alert_text_only
+    alert_text:  |
+      Alert: {0}
+      Details: {1}
+
+    alert_subject_args: [ alert.category ]
+    alert_subject: "{0}"
+
+    hive_connection:
+     hive_host: "http://10.10.8.80"
+     hive_port: 31251
+     hive_apikey: "naEuBacOzNyJRPGu4ginGJyNPDodEPp1"
+
+    hive_alert_config:
+     type: 'alert'
+     source: 'elastalert'
+     tags: [sensor_name]
+     severity: 3
+     tlp: 3
+     status: 'New'
+     follow: True
+
+    hive_observable_data_mapping:
+     - ip: client_ip
+     - ip: dest_ip
+     - other: log.severity
+     - other: service_name

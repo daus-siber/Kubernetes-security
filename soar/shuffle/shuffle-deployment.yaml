@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shuffle
+  labels:
+    app: shuffle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shuffle
+  template:
+    metadata:
+      labels:
+        app: shuffle
+    spec:
+      containers:
+      - name: shuffle
+        image: shuffle/shuffle:latest
+        ports:
+        - containerPort: 3001
+        env:
+        - name: SHUFFLE_DB_TYPE
+          value: "postgres"
+        - name: SHUFFLE_DB_HOST
+          value: "10.10.8.80"
+        - name: SHUFFLE_DB_PORT
+          value: "30432"
+        - name: SHUFFLE_DB_NAME
+          value: "shuffle"
+        - name: SHUFFLE_DB_USER
+          value: "shuffle"
+        - name: SHUFFLE_DB_PASSWORD
+          value: "secret1234"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shuffle
+spec:
+  selector:
+    app: shuffle
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3001
+  type: LoadBalancer
+

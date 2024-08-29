@@ -1,0 +1,64 @@
+# PersistentVolume for SSA Data 1
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ssa-data1
+  labels: 
+    app: ssa
+    volume: data1
+spec:
+  capacity:
+    storage: 150Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  claimRef:
+    namespace: opensearch
+    name: ssa-data1
+  hostPath:
+    path: /home/kube/data/ssd1
+
+---
+# PersistentVolume for SSA Data 2
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ssa-data2
+  lables:
+    app: ssa
+    volume: data2
+spec:
+  capacity:
+    storage: 150Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  claimRef:
+    namespace: opensearch
+    name: ssa-data2
+  hostPath:
+    path: /home/kube/data/ssd2
+
+---
+# PersistentVolume for SSA Data 3
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ssa-data3
+  labels: 
+    app: ssa
+    volume: data3
+spec:
+  capacity:
+    storage: 150Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  claimRef:
+    namespace: opensearch
+    name: ssa-data3
+  hostPath:
+    path: /home/kube/data/ssd3

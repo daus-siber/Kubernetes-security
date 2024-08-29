@@ -1,0 +1,61 @@
+# PersistentVolume for Cassandra
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cassandra-pv
+  labels:
+    app: cassandra
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  claimRef:
+    namespace: opensearch
+    name: cassandra-pvc
+  hostPath:
+    path: /home/kube/data/cassandra
+
+---
+# PersistentVolume for Elasticsearch
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: elasticsearch-pv
+  labels: 
+    app: elasticsearch
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  claimRef:
+    namespace: opensearch
+    name: elasticsearch-pvc
+  hostPath:
+    path: /home/kube/data/elasticsearch
+
+---
+# PersistentVolume for Minio
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: minio-pv
+  labels: 
+    app: minio
+spec:
+  capacity: 
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  claimRef:
+    namespace: opensearch
+    name: minio-pvc
+  hostPath:
+    path: /home/kube/data/minio

@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ssa-dashboards
+  namespace: opensearch
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: ssa-dashboards
+  template:
+    metadata:
+      labels:
+        app: ssa-dashboards
+    spec:
+      containers:
+      - name: ssa-dashboards
+        image: opensearchproject/opensearch-dashboards:2.15.0
+        ports:
+        - containerPort: 7601
+        resources:
+          limits:
+            memory: "2Gi"
+            cpu: "2"
+          requests:
+            memory: "1Gi"
+            cpu: "1"
+        env:
+        - name: OPENSEARCH_HOSTS
+          value: '["https://10.10.8.80:30080"]'
+        volumeMounts:
+        - mountPath: /usr/share/opensearch-dashboards/config
+          name: dashboards-config-volume
+        - mountPath: /usr/share/opensearch-dashboards/src/core/public/assets/
+          name: dashboards-assets-volume
+      volumes:
+      - name: dashboards-config-volume
+        hostPath:
+          path: /home/kube/docker/ssa-dashboards/config
+          type: Directory
+      - name: dashboards-assets-volume
+        hostPath:
+          path: /home/kube/docker/ssa-dashboards/assets
+          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ssa-dashboards
+spec:
+  type: NodePort
+  ports:
+    - port: 7601
+      targetPort: 7601
+      nodePort: 30085
+      protocol: TCP
+  selector:
+    app: ssa-dashboards

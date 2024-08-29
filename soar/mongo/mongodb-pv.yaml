@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongodb-pv
+  labels:
+    app: mongodb
+spec:
+  capacity:
+    storage: 50Gi  # Adjust the size as needed
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /home/kube/data/mongo  # Ensure this path exists on the node
+  storageClassName: standart
+  claimRef:
+    namespace: opensearch
+    name: mongodb-pvc

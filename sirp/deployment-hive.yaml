@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thehive
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: thehive
+  template:
+    metadata:
+      labels:
+        app: thehive
+    spec:
+      containers:
+      - name: thehive
+        image: strangebee/thehive:5.2
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 9000
+        env:
+        - name: JVM_OPTS
+          value: "-Xms2g -Xmx2g"
+        volumeMounts:
+        - name: hive-logo
+          mountPath: /opt/thehive/lib/org.thp.thehive-frontend-assets-5.2.9-1.jar
+          subPath: org.thp.thehive-frontend-assets-5.2.9-1.jar
+        - name: config-volume
+          mountPath: /etc/thehive/application.conf
+          subPath: application.conf
+        startupProbe:
+          httpGet:
+            path: /api/v1/status/public
+            port: 9000
+          failureThreshold: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /api/v1/status/public
+            port: 9000
+          periodSeconds: 10
+        args:
+          - --secret
+          - mySecretForTheHive
+          - --cql-hostnames
+          - cassandra
+          - --index-backend
+          - elasticsearch
+          - --es-hostnames
+          - elasticsearch
+          - --s3-endpoint
+          - http://10.106.99.164:9090
+          - --s3-bucket
+          - thehive
+          - --s3-access-key
+          - minioadmin
+          - --s3-secret-key
+          - minioadmin
+          - --cortex-hostnames
+          - http://10.10.19.155 
+          - --cortex-keys
+          # put cortex api key once cortex is bootstraped
+          - Jrlv/cfHxRD3mgbHaBPH5CdNz4kLk0Bz
+      volumes:
+      - name: hive-logo
+        hostPath:
+          path: /home/kube/sirp/logo
+      - name: config-volume
+        configMap:
+          name: thehive-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: thehive
+spec:
+  selector:
+    app: thehive
+  ports:
+  - protocol: TCP
+    port: 9000
+    targetPort: 9000
+    nodePort: 31251
+  type: NodePort

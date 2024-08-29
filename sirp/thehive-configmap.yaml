@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: thehive-config
+data:
+  application.conf: |
+    play.modules.enabled += org.thp.thehive.connector.cortex.CortexModule
+    cortex {
+      servers = [
+        {
+          name = cortex
+          url = "http://10.10.8.80:30001/"
+          auth {
+            type = "bearer"
+            key = Jrlv/cfHxRD3mgbHaBPH5CdNz4kLk0Bz
+          }
+          # HTTP client configuration (SSL and proxy)
+          # wsConfig {}
+          # List TheHive organisation which can use this Cortex server. All ("") by default
+          # includedTheHiveOrganisations = [""]
+          # List TheHive organisation which cannot use this Cortex server. None by default
+          # excludedTheHiveOrganisations = []
+        }
+      ]
+    }

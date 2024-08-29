@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ssa-config
+  namespace: opensearch
+  labels: 
+    app: opensearch
+data:
+  opensearch.yml: |
+    cluster.name: ssa-cluster
+    network.host: "0.0.0.0"
+    http.port: 10200
+    transport.port: 10300
+    discovery.seed_hosts: ssa-node1,ssa-node2,ssa-node3
+    cluster.initial_cluster_manager_nodes: ssa-node1,ssa-node2,ssa-node3
+    bootstrap.memory_lock: true
+   
+
+    http:
+      ssl: 
+        enabled:true
+        key: /usr/share/opensearch/config/certs/node-key.pem
+        certificate: /usr/share/opensearch/config/certs/node.pem
+        certificate_authorities: [ "/usr/share/opensearch/config/certs/root-ca.pem" ]
+   
+    transport:
+       ssl:
+         enabled: true
+         key: /usr/share/opensearch/config/certs/node-key.pem
+         certificate: /usr/share/opensearch/config/certs/node.pem
+         certificate_authorities: [ "/usr/share/opensearch/config/certs/root-ca.pem" ]
+         enforce_hostname_verification: false
+
+
+    plugins.security.allow_default_init_securityindex: true
+    plugins.security.authcz.admin_dn:
+      - 'CN=A,OU=UNIT,O=ORG,L=TORONTO,ST=ONTARIO,C=CA'
+    plugins.security.nodes_dn:
+      - 'CN=node.ssa,OU=UNIT,O=ORG,L=TORONTO,ST=ONTARIO,C=CA'
+      - 'CN=node.ssa,OU=UNIT,O=ORG,L=TORONTO,ST=ONTARIO,C=CA'
+      - 'CN=node.ssa,OU=UNIT,O=ORG,L=TORONTO,ST=ONTARIO,C=CA'
+      - 'CN=node.ssa,OU=UNIT,O=ORG,L=TORONTO,ST=ONTARIO,C=CA'
+      - 'CN=node.ssa,OU=UNIT,O=ORG,L=TORONTO,ST=ONTARIO,C=CA'
+      - 'CN=node.ssa,OU=UNIT,O=ORG,L=TORONTO,ST=ONTARIO,C=CA'
+    plugins.security.audit.type: internal_opensearch
+    plugins.security.enable_snapshot_restore_privilege: true
+    plugins.security.check_snapshot_restore_write_privileges: true
+    plugins.security.cache.ttl_minutes: 60
+    plugins.security.restapi.roles_enabled: ["all_access", "security_rest_api_access"]
+    plugins.security.system_indices.enabled: true
+    plugins.security.system_indices.indices: [".opendistro-alerting-config", ".opendistro-alerting-alert*", ".opendistro-anomaly-results*", ".opendistro-anomaly-detector*", ".opendistro-anomaly-checkpoints", ">
+
+
+    node.max_local_storage_nodes: 10
+    indices.query.bool.max_clause_count: 8192
+    search.max_buckets: 250000

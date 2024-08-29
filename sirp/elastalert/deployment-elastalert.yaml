@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elastalert
+  labels:
+    app: elastalert
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elastalert
+  template:
+    metadata:
+      labels:
+        app: elastalert
+    spec:
+      containers:
+      - name: elastalert
+        image: sekolahlinux/elastalert
+#        command: ["sh", "-c", "elastalert-create-index --index elastalert_status --old-index '' --host elasticsearch --port 9200 && elastalert --config /opt/elastalert/config.yaml"]
+        volumeMounts:
+        - name: elastalert-rules
+          mountPath: "/elastalert/rules"
+        - name: elastalert-conf
+          mountPath: "/elastalert/config"
+      volumes:
+      - name: elastalert-conf
+        configMap:
+          name: elastalert-conf
+      - name: elastalert-rules
+        configMap:
+          name: elastalert-rules
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elastalert
+spec:
+  ports:
+  - port: 3030
+    targetPort: 3030
+  selector:
+    app: elastalert

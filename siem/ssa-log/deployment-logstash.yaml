@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ssa-logparser
+  namespace: opensearch
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: ssa-logparser
+  template:
+    metadata:
+      labels:
+        app: ssa-logparser
+    spec:
+      containers:
+      - name: ssa-logparser
+        image: opensearchproject/logstash-oss-with-opensearch-output-plugin:7.16.2
+        ports:
+        - containerPort: 5100
+        env:
+        - name: LS_JAVA_OPTS
+          value: "-Xmx4g -Xms4g"
+        volumeMounts:
+        - name: logstash-config-volume
+          mountPath: /usr/share/logstash/config
+        - name: logstash-pipeline-volume
+          mountPath: /usr/share/logstash/pipeline
+      volumes:
+      - name: logstash-config-volume
+        hostPath: 
+          path: /home/kube/docker/ssa-logparser/config
+      - name: logstash-pipeline-volume
+        hostPath:
+          path: /home/kube/docker/ssa-logparser/pipeline
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ssa-logparser
+  labels: 
+   app: ssa-logparser
+spec:
+  type: NodePort
+  ports:
+    - name: logstash
+      port: 5100
+      targetPort: 5100
+      protocol: TCP
+      nodePort: 30100
+  selector:
+    app: ssa-logparser

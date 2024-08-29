@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cortex
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: cortex
+  template:
+    metadata:
+      labels:
+        app: cortex
+    spec:
+      containers:
+      - name: cortex
+        image: thehiveproject/cortex:3.1.7
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 9001
+        env:
+        - name: job_directory
+          value: "/tmp/cortex-jobs"
+        - name: CORTEX_AUTH_METHOD
+          value: "api"
+        volumeMounts:
+        - name: cortex-logo
+          mountPath: /opt/cortex/lib/org.thehive-project.cortex-3.1.7-1-assets.jar
+          subPath: org.thehive-project.cortex-3.1.7-1-assets.jar
+        - name: docker-sock
+          mountPath: /var/run/docker.sock
+        - name: cortex-jobs
+          mountPath: /tmp/cortex-jobs
+      volumes:
+      - name: cortex-logo
+        hostPath:
+          path: /home/kube/sirp/cortexlogo
+      - name: docker-sock
+        hostPath:
+          path: /var/run/docker.sock
+      - name: cortex-jobs
+        hostPath:
+          path: /tmp/cortex-jobs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cortex
+spec:
+  selector:
+    app: cortex
+  ports:
+  - protocol: TCP
+    port: 9001
+    targetPort: 9001
+    nodePort: 30001
+  type: NodePort
